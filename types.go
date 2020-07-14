@@ -318,3 +318,29 @@ type CryptocurrencyQuote struct {
 
 	Quote map[string]MarketQuote `json:"quote"`
 }
+
+type FiatMapRequest struct {
+	Start         int    `json:"start"`
+	Limit         int    `json:"limit"`
+	Sort          string `json:"sort"`
+	IncludeMetals bool   `json:"include_metals"`
+}
+
+type FiatMapResponse struct {
+	Data   []Fiat         `json:"data"`
+	Status ResponseStatus `json:"status"`
+}
+
+type Fiat struct {
+	//The unique CoinMarketCap ID for this asset.
+	Id     int    `json:"id"`
+
+	//The name of this asset.
+	Name   string `json:"name"`
+
+	//The currency sign for this asset.
+	Sign   string `json:"sign"`
+
+	//The ticker symbol for this asset, always in all caps.
+	Symbol string `json:"symbol"`
+}

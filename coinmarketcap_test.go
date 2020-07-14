@@ -137,3 +137,24 @@ func TestCoinmarketcapClient_CryptocurrencyQuotesLatest(t *testing.T) {
 	assert.NotNil(t, cryptocurrencyQuotesLatestMap["BTC"], "missing cryptocurrency quotes for BTC")
 	assert.NotNil(t, cryptocurrencyQuotesLatestMap["ETH"], "missing cryptocurrency quotes for ETH")
 }
+
+func TestCoinmarketcapClient_FiatMap(t *testing.T) {
+	err := godotenv.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmc := &CoinmarketcapClient{}
+	err = cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &FiatMapRequest{}
+	assets, err := cmc.FiatMap(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, assets, "empty assets response")
+}

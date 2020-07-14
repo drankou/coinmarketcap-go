@@ -42,7 +42,7 @@ func (c *CoinmarketcapClient) CryptocurrencyIdMap(request *CryptocurrencyMapRequ
 		query.Add("listing_status", request.ListingStatus)
 	}
 
-	if request.Limit >= 1 {
+	if request.Limit >= 1 && request.Limit <= 5000 {
 		query.Add("end", strconv.Itoa(request.Limit))
 	}
 
@@ -236,5 +236,55 @@ func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *Cryptocurrency
 		return cmcIdMapResponse.Data, nil
 	} else {
 		return nil, errors.New(fmt.Sprintf("CryptocurrencyListingsLatest: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
+func (c *CoinmarketcapClient) FiatMap(request *FiatMapRequest) ([]Fiat, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/fiat/map", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	query := url.Values{}
+	if request.Start >= 1 {
+		query.Add("start", strconv.Itoa(request.Start))
+	}
+
+	if request.Limit >= 1 && request.Limit <= 5000 {
+		query.Add("end", strconv.Itoa(request.Limit))
+	}
+
+	if request.Sort != "" {
+		query.Add("symbol", request.Sort)
+	}
+
+	if request.IncludeMetals != false {
+		query.Add("aux", strconv.FormatBool(request.IncludeMetals))
+	}
+
+	httpRequest.Header.Set("Accepts", "application/json")
+	httpRequest.Header.Add("X-CMC_PRO_API_KEY", os.Getenv("CMC_PRO_API_KEY"))
+	httpRequest.URL.RawQuery = query.Encode()
+
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse FiatMapResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("CryptocurrencyIdMap: %d: %s", resp.StatusCode, resp.Status))
 	}
 }
