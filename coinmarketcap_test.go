@@ -158,3 +158,25 @@ func TestCoinmarketcapClient_FiatMap(t *testing.T) {
 
 	assert.NotEmpty(t, assets, "empty assets response")
 }
+
+
+func TestCoinmarketcapClient_GlobalMetricsQuotesLatest(t *testing.T) {
+	err := godotenv.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmc := &CoinmarketcapClient{}
+	err = cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &GlobalMetricsQuotesLatestRequest{}
+	globalMetrics, err := cmc.GlobalMetricsQuotesLatest(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotNil(t, globalMetrics, "global metrics response is nil")
+}

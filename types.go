@@ -333,14 +333,49 @@ type FiatMapResponse struct {
 
 type Fiat struct {
 	//The unique CoinMarketCap ID for this asset.
-	Id     int    `json:"id"`
+	Id int `json:"id"`
 
 	//The name of this asset.
-	Name   string `json:"name"`
+	Name string `json:"name"`
 
 	//The currency sign for this asset.
-	Sign   string `json:"sign"`
+	Sign string `json:"sign"`
 
 	//The ticker symbol for this asset, always in all caps.
 	Symbol string `json:"symbol"`
+}
+
+type GlobalMetricsQuotesLatestRequest struct {
+	//A comma-separated list of cryptocurrency or fiat currency symbols.
+	Convert string `json:"convert"`
+
+	//A comma-separated list of CoinMarketCap IDs.
+	ConvertId string `json:"convert_id"`
+}
+
+type GlobalMetricsQuotesLatestResponse struct {
+	Data   GlobalMetricsQuotesLatest `json:"data"`
+	Status ResponseStatus            `json:"status"`
+}
+
+type GlobalMetricsQuotesLatest struct {
+	BTCDominance           float64                       `json:"btc_dominance"`
+	ETHDominance           float64                       `json:"eth_dominance"`
+	ActiveCryptocurrencies float64                       `json:"active_cryptocurrencies"`
+	TotalCryptocurrencies  float64                       `json:"total_cryptocurrencies"`
+	ActiveMarketPairs      float64                       `json:"active_market_pairs"`
+	ActiveExchanges        float64                       `json:"active_exchanges"`
+	TotalExchanges         float64                       `json:"total_exchanges"`
+	LastUpdated            string                        `json:"last_updated"`
+	Quote                  map[string]GlobalMetricsQuote `json:"quote"`
+}
+
+type GlobalMetricsQuote struct {
+	TotalMarketCap           float64 `json:"total_market_cap"`
+	TotalVolume24H           float64 `json:"total_volume_24h"`
+	TotalVolume24HReported   float64 `json:"total_volume_24h_reported"`
+	AltcoinVolume24H         float64 `json:"altcoin_volume_24h"`
+	AltcoinVolume24HReported float64 `json:"altcoin_volume_24h_reported"`
+	AltcoinMarketCap         float64 `json:"altcoin_market_cap"`
+	LastUpdated              string  `json:"last_updated"`
 }
