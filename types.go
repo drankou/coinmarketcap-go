@@ -241,3 +241,80 @@ type MarketQuote struct {
 	LastUpdated       string  `json:"last_updated"`
 }
 
+type CryptocurrencyQuotesLatestRequest struct {
+	//One or more comma-separated cryptocurrency CoinMarketCap IDs.
+	Id string
+
+	//One or more comma-separated cryptocurrency slugs
+	Slug string
+
+	//One or more comma-separated cryptocurrency symbols.
+	Symbol string
+
+	//A comma-separated list of cryptocurrency or fiat currency symbols.
+	Convert string
+
+	//A comma-separated list of CoinMarketCap IDs.
+	ConvertId string
+
+	//A comma-separated list of supplemental data fields to return
+	Aux string
+
+	//If set to true, invalid lookups will be skipped allowing valid cryptocurrencies to still be returned.
+	SkipInvalid bool
+}
+
+type CryptocurrencyQuotesLatestResponse struct {
+	Data   map[string]CryptocurrencyQuote `json:"data"`
+	Status ResponseStatus                 `json:"status"`
+}
+
+type CryptocurrencyQuote struct {
+	//The unique CoinMarketCap ID for the parent platform cryptocurrency.
+	Id int `json:"id"`
+
+	//The name of the parent platform cryptocurrency.
+	Name string `json:"name"`
+
+	//The ticker symbol for this cryptocurrency.
+	Symbol string `json:"symbol"`
+
+	//The web URL friendly shorthand version of the parent platform cryptocurrency name.
+	Slug string `json:"slug"`
+
+	//1 if this cryptocurrency has at least 1 active market currently being tracked by the platform, otherwise 0.
+	IsActive CryptocurrencyStatus `json:"is_active"`
+
+	IsFiat int `json:"is_fiat"`
+
+	//The cryptocurrency's CoinMarketCap rank by market cap
+	CmcRank int `json:"cmc_rank"`
+
+	//The number of active trading pairs available for this cryptocurrency across supported exchanges.
+	NumMarketPairs int `json:"num_market_pairs"`
+
+	CirculatingSupply float64 `json:"circulating_supply"`
+
+	//The approximate total amount of coins in existence right now (minus any coins that have been verifiably burned).
+	TotalSupply float64 `json:"total_supply"`
+
+	//The market cap by total supply. This field is only returned if requested through the aux request parameter.
+	MarketCapByTotalSupply float64 `json:"market_cap_by_total_supply"`
+
+	//The expected maximum limit of coins ever to be available for this cryptocurrency.
+	MaxSupply float64 `json:"max_supply"`
+
+	//Timestamp (ISO 8601) of when this cryptocurrency was added to CoinMarketCap.
+	DateAdded string `json:"date_added"`
+
+	//Array of tags associated with this cryptocurrency.
+	Tags []string `json:"tags"`
+
+	//Metadata about the parent cryptocurrency platform this cryptocurrency belongs to if it is a token, otherwise null.
+	Platform Platform `json:"platform"`
+
+	//Timestamp (ISO 8601) of the last time this cryptocurrency's market data was updated.
+	LastUpdated string `json:"last_updated"`
+
+	Quote map[string]MarketQuote `json:"quote"`
+}

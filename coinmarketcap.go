@@ -176,3 +176,65 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsLatest(request *Cryptocurren
 		return nil, errors.New(fmt.Sprintf("CryptocurrencyListingsLatest: %d: %s", resp.StatusCode, resp.Status))
 	}
 }
+
+func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *CryptocurrencyQuotesLatestRequest) (map[string]CryptocurrencyQuote, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/quotes/latest", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	query := url.Values{}
+	if request.Id != "" {
+		query.Add("id", request.Id)
+	}
+
+	if request.Slug != "" {
+		query.Add("slug", request.Slug)
+	}
+
+	if request.Symbol != "" {
+		query.Add("symbol", request.Symbol)
+	}
+
+	if request.Convert != "" {
+		query.Add("convert", request.Convert)
+	}
+
+	if request.ConvertId != "" {
+		query.Add("convert_id", request.ConvertId)
+	}
+
+	if request.Aux != "" {
+		query.Add("aux", request.Aux)
+	}
+
+	if request.SkipInvalid != false {
+		query.Add("skip_invalid", strconv.FormatBool(request.SkipInvalid))
+	}
+
+	httpRequest.Header.Set("Accepts", "application/json")
+	httpRequest.Header.Add("X-CMC_PRO_API_KEY", os.Getenv("CMC_PRO_API_KEY"))
+	httpRequest.URL.RawQuery = query.Encode()
+
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse CryptocurrencyQuotesLatestResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("CryptocurrencyListingsLatest: %d: %s", resp.StatusCode, resp.Status))
+	}
+}

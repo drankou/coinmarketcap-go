@@ -84,7 +84,7 @@ func TestCoinmarketcapClient_CryptocurrencyInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Len(t, cryptocurrencyInfoMap, 2, "nubmer of assets in response doesnt match")
+	assert.Len(t, cryptocurrencyInfoMap, 2, "number of assets in response doesnt match")
 	assert.NotNil(t, cryptocurrencyInfoMap["BTC"], "missing cryptocurrency info for BTC")
 	assert.NotNil(t, cryptocurrencyInfoMap["ETH"], "missing cryptocurrency info for ETH")
 }
@@ -109,4 +109,31 @@ func TestCoinmarketcapClient_CryptocurrencyListingsLatest(t *testing.T) {
 	}
 
 	assert.NotEmpty(t, cryptocurrencyInfoMap, "empty response")
+}
+
+func TestCoinmarketcapClient_CryptocurrencyQuotesLatest(t *testing.T) {
+	err := godotenv.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmc := &CoinmarketcapClient{}
+	err = cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &CryptocurrencyQuotesLatestRequest{
+		Symbol: "BTC,ETH",
+	}
+
+	cryptocurrencyQuotesLatestMap, err := cmc.CryptocurrencyQuotesLatest(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, cryptocurrencyQuotesLatestMap, "empty response")
+	assert.Len(t, cryptocurrencyQuotesLatestMap, 2, "number of assets in response doesnt match")
+	assert.NotNil(t, cryptocurrencyQuotesLatestMap["BTC"], "missing cryptocurrency quotes for BTC")
+	assert.NotNil(t, cryptocurrencyQuotesLatestMap["ETH"], "missing cryptocurrency quotes for ETH")
 }
