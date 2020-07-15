@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/google/go-querystring/query"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
-	"strconv"
 )
 
 const (
@@ -33,30 +32,10 @@ func (c *CoinmarketcapClient) CryptocurrencyIdMap(request *CryptocurrencyMapRequ
 		log.Error(err)
 	}
 
-	query := url.Values{}
-	if request.Start >= 1 {
-		query.Add("start", strconv.Itoa(request.Start))
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
 	}
-
-	if request.ListingStatus != "" {
-		query.Add("listing_status", request.ListingStatus)
-	}
-
-	if request.Limit >= 1 && request.Limit <= 5000 {
-		query.Add("end", strconv.Itoa(request.Limit))
-	}
-
-	if request.Symbol != "" {
-		query.Add("symbol", request.Symbol)
-	}
-
-	if request.Aux != "" {
-		query.Add("aux", request.Aux)
-	}
-
-	httpRequest.Header.Set("Accepts", "application/json")
-	httpRequest.Header.Add("X-CMC_PRO_API_KEY", os.Getenv("CMC_PRO_API_KEY"))
-	httpRequest.URL.RawQuery = query.Encode()
 
 	resp, err := c.client.Do(httpRequest)
 	if err != nil {
@@ -87,26 +66,10 @@ func (c *CoinmarketcapClient) CryptocurrencyInfo(request *CryptocurrencyInfoRequ
 		log.Error(err)
 	}
 
-	query := url.Values{}
-	if request.Id != "" {
-		query.Add("id", request.Id)
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
 	}
-
-	if request.Slug != "" {
-		query.Add("slug", request.Slug)
-	}
-
-	if request.Symbol != "" {
-		query.Add("symbol", request.Symbol)
-	}
-
-	if request.Aux != "" {
-		query.Add("aux", request.Aux)
-	}
-
-	httpRequest.Header.Set("Accepts", "application/json")
-	httpRequest.Header.Add("X-CMC_PRO_API_KEY", os.Getenv("CMC_PRO_API_KEY"))
-	httpRequest.URL.RawQuery = query.Encode()
 
 	resp, err := c.client.Do(httpRequest)
 	if err != nil {
@@ -137,22 +100,10 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsLatest(request *Cryptocurren
 		log.Error(err)
 	}
 
-	query := url.Values{}
-	if request.Start >= 1 {
-		query.Add("start", strconv.Itoa(request.Start))
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
 	}
-
-	if request.Limit != 0 {
-		query.Add("limit", strconv.Itoa(request.Limit))
-	}
-
-	if request.Aux != "" {
-		query.Add("aux", request.Aux)
-	}
-
-	httpRequest.Header.Set("Accepts", "application/json")
-	httpRequest.Header.Add("X-CMC_PRO_API_KEY", os.Getenv("CMC_PRO_API_KEY"))
-	httpRequest.URL.RawQuery = query.Encode()
 
 	resp, err := c.client.Do(httpRequest)
 	if err != nil {
@@ -177,44 +128,50 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsLatest(request *Cryptocurren
 	}
 }
 
+func (c *CoinmarketcapClient) CryptocurrencyListingsHistorical(request *CryptocurrencyListingsHistoricalRequest) ([]CryptocurrencyListing, error) {
+	httpRequest, err := http.NewRequest("GET", SANDBOX_URL+"/v1/cryptocurrency/listings/historical", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse CryptocurrencyListingsHistoricalResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("CryptocurrencyListingsHistorical: %d: %s:", resp.StatusCode, resp.Status))
+	}
+}
+
 func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *CryptocurrencyQuotesLatestRequest) (map[string]CryptocurrencyQuote, error) {
 	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/quotes/latest", nil)
 	if err != nil {
 		log.Error(err)
 	}
 
-	query := url.Values{}
-	if request.Id != "" {
-		query.Add("id", request.Id)
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
 	}
-
-	if request.Slug != "" {
-		query.Add("slug", request.Slug)
-	}
-
-	if request.Symbol != "" {
-		query.Add("symbol", request.Symbol)
-	}
-
-	if request.Convert != "" {
-		query.Add("convert", request.Convert)
-	}
-
-	if request.ConvertId != "" {
-		query.Add("convert_id", request.ConvertId)
-	}
-
-	if request.Aux != "" {
-		query.Add("aux", request.Aux)
-	}
-
-	if request.SkipInvalid != false {
-		query.Add("skip_invalid", strconv.FormatBool(request.SkipInvalid))
-	}
-
-	httpRequest.Header.Set("Accepts", "application/json")
-	httpRequest.Header.Add("X-CMC_PRO_API_KEY", os.Getenv("CMC_PRO_API_KEY"))
-	httpRequest.URL.RawQuery = query.Encode()
 
 	resp, err := c.client.Do(httpRequest)
 	if err != nil {
@@ -245,27 +202,10 @@ func (c *CoinmarketcapClient) FiatMap(request *FiatMapRequest) ([]Fiat, error) {
 		log.Error(err)
 	}
 
-	query := url.Values{}
-	if request.Start >= 1 {
-		query.Add("start", strconv.Itoa(request.Start))
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
 	}
-
-	if request.Limit >= 1 && request.Limit <= 5000 {
-		query.Add("end", strconv.Itoa(request.Limit))
-	}
-
-	if request.Sort != "" {
-		query.Add("symbol", request.Sort)
-	}
-
-	if request.IncludeMetals != false {
-		query.Add("aux", strconv.FormatBool(request.IncludeMetals))
-	}
-
-	httpRequest.Header.Set("Accepts", "application/json")
-	httpRequest.Header.Add("X-CMC_PRO_API_KEY", os.Getenv("CMC_PRO_API_KEY"))
-	httpRequest.URL.RawQuery = query.Encode()
-
 	resp, err := c.client.Do(httpRequest)
 	if err != nil {
 		return nil, err
@@ -295,19 +235,10 @@ func (c *CoinmarketcapClient) GlobalMetricsQuotesLatest(request *GlobalMetricsQu
 		log.Error(err)
 	}
 
-	query := url.Values{}
-	if request.Convert != "" {
-		query.Add("convert", request.Convert)
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
 	}
-
-	if request.ConvertId != "" {
-		query.Add("convert_id", request.ConvertId)
-	}
-
-	httpRequest.Header.Set("Accepts", "application/json")
-	httpRequest.Header.Add("X-CMC_PRO_API_KEY", os.Getenv("CMC_PRO_API_KEY"))
-	httpRequest.URL.RawQuery = query.Encode()
-
 	resp, err := c.client.Do(httpRequest)
 	if err != nil {
 		return nil, err
@@ -329,4 +260,17 @@ func (c *CoinmarketcapClient) GlobalMetricsQuotesLatest(request *GlobalMetricsQu
 	} else {
 		return nil, errors.New(fmt.Sprintf("GlobalMetricsQuotesLatest: %d: %s", resp.StatusCode, resp.Status))
 	}
+}
+
+func prepareHttpRequest(httpRequest *http.Request, request interface{}) error {
+	values, err := query.Values(request)
+	if err != nil {
+		return err
+	}
+
+	httpRequest.Header.Set("Accepts", "application/json")
+	httpRequest.Header.Add("X-CMC_PRO_API_KEY", os.Getenv("CMC_PRO_API_KEY"))
+	httpRequest.URL.RawQuery = values.Encode()
+
+	return nil
 }

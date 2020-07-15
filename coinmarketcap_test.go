@@ -111,6 +111,31 @@ func TestCoinmarketcapClient_CryptocurrencyListingsLatest(t *testing.T) {
 	assert.NotEmpty(t, cryptocurrencyInfoMap, "empty response")
 }
 
+func TestCoinmarketcapClient_CryptocurrencyListingsHistorical(t *testing.T) {
+	err := godotenv.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cmc := &CoinmarketcapClient{}
+	err = cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &CryptocurrencyListingsHistoricalRequest{
+		Convert: "USD,BTC",
+		Date: "2019-08-19",
+	}
+
+	cryptocurrencyInfoMap, err := cmc.CryptocurrencyListingsHistorical(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, cryptocurrencyInfoMap, "empty response")
+}
+
 func TestCoinmarketcapClient_CryptocurrencyQuotesLatest(t *testing.T) {
 	err := godotenv.Load()
 	if err != nil {

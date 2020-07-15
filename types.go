@@ -16,17 +16,17 @@ const (
 
 type CryptocurrencyInfoRequest struct {
 	//One or more comma-separated CoinMarketCap cryptocurrency IDs
-	Id string `json:"id"`
+	Id string `url:"id,omitempty"`
 	//A comma-separated list of cryptocurrency slugs
-	Slug string `json:"slug"`
+	Slug string `url:"slug,omitempty"`
 
 	//One or more comma-separated cryptocurrency symbols
-	Symbol string `json:"symbol"`
+	Symbol string `url:"symbol,omitempty"`
 
 	//Default: "urls,logo,description,tags,platform,date_added,notice"
 	//A comma-separated list of supplemental data fields to return.
 	//Pass urls,logo,description,tags,platform,date_added,notice,status to include all auxiliary fields.
-	Aux string `json:"aux"`
+	Aux string `url:"aux,omitempty"`
 }
 
 type CryptocurrencyInfoResponse struct {
@@ -90,26 +90,26 @@ type Urls struct {
 type CryptocurrencyMapRequest struct {
 	//Default: "active"
 	//One or more comma-separated values: "active", "inactive", "untracked".
-	ListingStatus string `json:"listing_status"`
+	ListingStatus string `url:"listing_status,omitempty"`
 
 	//Default: "1"
 	//Offset the start (1-based index) of the paginated list of items to return.
-	Start int `json:"start"`
+	Start int `url:"start,omitempty"`
 
 	//The number of results to return. Range [1..5000]
-	Limit int `json:"limit"`
+	Limit int `url:"limit,omitempty"`
 
 	//Default: "id"
 	//Field to sort the list of cryptocurrencies by
-	Sort string `json:"sort"`
+	Sort string `url:"sort,omitempty"`
 
 	//A comma-separated list of cryptocurrency symbols to return CoinMarketCap IDs for.
 	//If this option is passed, other options will be ignored.
-	Symbol string `json:"symbol"`
+	Symbol string `url:"symbol,omitempty"`
 
 	//Default: "platform,first_historical_data,last_historical_data,is_active"
 	//A comma-separated list of supplemental data fields to return. Pass platform,first_historical_data,last_historical_data,is_active,status to include all auxiliary fields.
-	Aux string `json:"aux"`
+	Aux string `url:"aux,omitempty"`
 }
 
 type CryptocurrencyMapResponse struct {
@@ -182,28 +182,45 @@ type ResponseStatus struct {
 }
 
 type CryptocurrencyListingsLatestRequest struct {
-	Start                int
-	Limit                int
-	PriceMin             float64
-	PriceMax             float64
-	MarketCapMin         float64
-	MarketCapMax         float64
-	Volume24hMin         float64
-	Volume24hMax         float64
-	CirculatingSupplyMin float64
-	CirculatingSupplyMax float64
-	PercentChange24Min   float64
-	PercentChange24Max   float64
-	Convert              string
-	ConvertId            string
-	Sort                 string
-	SortDir              string
-	CryptocurrencyType   string
-	Tag                  string
-	Aux                  string
+	Start                int     `url:"start,omitempty"`
+	Limit                int     `url:"limit,omitempty"`
+	PriceMin             float64 `url:"price_min,omitempty"`
+	PriceMax             float64 `url:"price_max,omitempty"`
+	MarketCapMin         float64 `url:"market_cap_min,omitempty"`
+	MarketCapMax         float64 `url:"market_cap_max,omitempty"`
+	Volume24HMin         float64 `url:"volume_24h_min,omitempty"`
+	Volume24HMax         float64 `url:"volume_24h_max,omitempty"`
+	CirculatingSupplyMin float64 `url:"circulating_supply_min,omitempty"`
+	CirculatingSupplyMax float64 `url:"circulating_supply_max,omitempty"`
+	PercentChange24HMin  float64 `url:"percent_change_24h_min,omitempty"`
+	PercentChange24HMax  float64 `url:"percent_change_24h_max,omitempty"`
+	Convert              string  `url:"convert,omitempty"`
+	ConvertId            string  `url:"convert_id,omitempty"`
+	Sort                 string  `url:"sort,omitempty"`
+	SortDir              string  `url:"sort_dir,omitempty"`
+	CryptocurrencyType   string  `url:"cryptocurrency_type,omitempty"`
+	Tag                  string  `url:"tag,omitempty"`
+	Aux                  string  `url:"aux,omitempty"`
 }
 
 type CryptocurrencyListingsLatestResponse struct {
+	Data   []CryptocurrencyListing
+	Status ResponseStatus
+}
+
+type CryptocurrencyListingsHistoricalRequest struct {
+	Date               string `url:"date,omitempty"`
+	Start              int    `url:"start,omitempty"`
+	Limit              int    `url:"limit,omitempty"`
+	Convert            string `url:"convert,omitempty"`
+	ConvertId          string `url:"convert_id,omitempty"`
+	Sort               string `url:"sort,omitempty"`
+	SortDir            string `url:"sort_dir,omitempty"`
+	CryptocurrencyType string `url:"cryptocurrency_type,omitempty"`
+	Aux                string `url:"aux,omitempty"`
+}
+
+type CryptocurrencyListingsHistoricalResponse struct {
 	Data   []CryptocurrencyListing
 	Status ResponseStatus
 }
@@ -243,25 +260,25 @@ type MarketQuote struct {
 
 type CryptocurrencyQuotesLatestRequest struct {
 	//One or more comma-separated cryptocurrency CoinMarketCap IDs.
-	Id string
+	Id string `url:"id,omitempty"`
 
 	//One or more comma-separated cryptocurrency slugs
-	Slug string
+	Slug string `url:"slug,omitempty"`
 
 	//One or more comma-separated cryptocurrency symbols.
-	Symbol string
+	Symbol string `url:"symbol,omitempty"`
 
 	//A comma-separated list of cryptocurrency or fiat currency symbols.
-	Convert string
+	Convert string `url:"convert,omitempty"`
 
 	//A comma-separated list of CoinMarketCap IDs.
-	ConvertId string
+	ConvertId string `url:"convert_id,omitempty"`
 
 	//A comma-separated list of supplemental data fields to return
-	Aux string
+	Aux string `url:"aux,omitempty"`
 
 	//If set to true, invalid lookups will be skipped allowing valid cryptocurrencies to still be returned.
-	SkipInvalid bool
+	SkipInvalid bool `url:"skip_invalid,omitempty"`
 }
 
 type CryptocurrencyQuotesLatestResponse struct {
@@ -320,10 +337,10 @@ type CryptocurrencyQuote struct {
 }
 
 type FiatMapRequest struct {
-	Start         int    `json:"start"`
-	Limit         int    `json:"limit"`
-	Sort          string `json:"sort"`
-	IncludeMetals bool   `json:"include_metals"`
+	Start         int    `url:"start,omitempty"`
+	Limit         int    `url:"limit,omitempty"`
+	Sort          string `url:"sort,omitempty"`
+	IncludeMetals bool   `url:"include_metals,omitempty"`
 }
 
 type FiatMapResponse struct {
@@ -347,10 +364,10 @@ type Fiat struct {
 
 type GlobalMetricsQuotesLatestRequest struct {
 	//A comma-separated list of cryptocurrency or fiat currency symbols.
-	Convert string `json:"convert"`
+	Convert string `url:"convert,omitempty"`
 
 	//A comma-separated list of CoinMarketCap IDs.
-	ConvertId string `json:"convert_id"`
+	ConvertId string `url:"convert_id,omitempty"`
 }
 
 type GlobalMetricsQuotesLatestResponse struct {
