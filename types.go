@@ -74,10 +74,10 @@ type CryptocurrencyInfo struct {
 	Platform Platform `json:"platform"`
 
 	//Various resource URLs for this cryptocurrency.
-	Urls Urls `json:"urls"`
+	Urls CryptocurrencyUrls `json:"urls"`
 }
 
-type Urls struct {
+type CryptocurrencyUrls struct {
 	Website      []string `json:"website"`
 	TechnicalDoc []string `json:"technical_doc"`
 	Explorer     []string `json:"explorer"`
@@ -431,4 +431,34 @@ type GlobalMetricsQuote struct {
 	AltcoinVolume24HReported float64    `json:"altcoin_volume_24h_reported"`
 	AltcoinMarketCap         float64    `json:"altcoin_market_cap"`
 	LastUpdated              *time.Time `json:"last_updated"`
+}
+
+type ExchangeInfoRequest struct {
+	Id   string `url:"id,omitempty"`
+	Slug string `url:"slug,omitempty"`
+	Aux  string `url:"aux,omitempty"`
+}
+
+type ExchangeInfoResponse struct {
+	Data   map[string]*ExchangeInfo `json:"data"`
+	Status ResponseStatus           `json:"status"`
+}
+
+type ExchangeInfo struct {
+	Id           int          `json:"id"`
+	Name         string       `json:"name"`
+	Slug         string       `json:"slug"`
+	Logo         string       `json:"logo"`
+	Description  string       `json:"description"`
+	DateLaunched *time.Time   `json:"date_launched"`
+	Notice       string       `json:"notice"`
+	Urls         ExchangeUrls `json:"urls"`
+}
+
+type ExchangeUrls struct {
+	Website []string `json:"website"`
+	Blog    []string `json:"blog"`
+	Chat    []string `json:"chat"`
+	Fee     []string `json:"fee"`
+	Twitter []string `json:"twitter"`
 }

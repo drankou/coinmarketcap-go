@@ -201,3 +201,28 @@ func TestCoinmarketcapClient_CryptocurrencyOHLCVLatest(t *testing.T) {
 	assert.NotNil(t, cryptocurrencyOHLCVMap["BTC"], "missing data for BTC")
 	assert.NotNil(t, cryptocurrencyOHLCVMap["ETH"], "missing data for ETH")
 }
+
+func TestCoinmarketcapClient_ExchangeInfo(t *testing.T) {
+	cmc := &CoinmarketcapClient{}
+	err := cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &ExchangeInfoRequest{
+		Slug: "binance",
+	}
+
+	exchangeInfoMap, err := cmc.ExchangeInfo(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, exchangeInfoMap, "empty response")
+
+	for exchange, metadata := range exchangeInfoMap {
+		t.Logf("Metadata for %s: %+v", exchange, metadata)
+	}
+
+	assert.NotNil(t, exchangeInfoMap["binance"], "missing data for binance")
+}

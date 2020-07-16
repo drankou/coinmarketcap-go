@@ -129,7 +129,7 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsLatest(request *Cryptocurren
 }
 
 func (c *CoinmarketcapClient) CryptocurrencyListingsHistorical(request *CryptocurrencyListingsHistoricalRequest) ([]CryptocurrencyListing, error) {
-	httpRequest, err := http.NewRequest("GET", SANDBOX_URL+"/v1/cryptocurrency/listings/historical", nil)
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/listings/historical", nil)
 	if err != nil {
 		log.Error(err)
 	}
@@ -163,7 +163,7 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsHistorical(request *Cryptocu
 }
 
 func (c *CoinmarketcapClient) CryptocurrencyOHLCVLatest(request *CryptocurrencyOHLCVLatestRequest) (map[string]*CryptocurrencyOHLCV, error) {
-	httpRequest, err := http.NewRequest("GET", SANDBOX_URL+"/v1/cryptocurrency/ohlcv/latest", nil)
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/ohlcv/latest", nil)
 	if err != nil {
 		log.Error(err)
 	}
@@ -293,6 +293,41 @@ func (c *CoinmarketcapClient) GlobalMetricsQuotesLatest(request *GlobalMetricsQu
 		return &cmcIdMapResponse.Data, nil
 	} else {
 		return nil, errors.New(fmt.Sprintf("GlobalMetricsQuotesLatest: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
+func (c *CoinmarketcapClient) ExchangeInfo(request *ExchangeInfoRequest) (map[string]*ExchangeInfo, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/exchange/info", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+
+	log.Print(httpRequest.URL.String())
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse ExchangeInfoResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("ExchangeInfo: %d: %s", resp.StatusCode, resp.Status))
 	}
 }
 
