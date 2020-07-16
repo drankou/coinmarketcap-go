@@ -1,20 +1,6 @@
-package coinmarketcap_go
+package types
 
 import "time"
-
-type CryptocurrencyStatus int
-
-const (
-	Active CryptocurrencyStatus = iota
-	InActive
-)
-
-type CryptocurrencyCategory string
-
-const (
-	Coin CryptocurrencyCategory = "coin"
-	Token
-)
 
 type CryptocurrencyInfoRequest struct {
 	//One or more comma-separated CoinMarketCap cryptocurrency IDs
@@ -149,38 +135,39 @@ type Cryptocurrency struct {
 	Platform Platform `json:"platform"`
 }
 
-type Platform struct {
-	//The unique CoinMarketCap ID for the parent platform cryptocurrency.
-	Id int `json:"id"`
-
-	//The name of the parent platform cryptocurrency.
-	Name string `json:"name"`
-
-	//The ticker symbol for the parent platform cryptocurrency.
-	Symbol string `json:"symbol"`
-
-	//The web URL friendly shorthand version of the parent platform cryptocurrency name.
-	Slug string `json:"slug"`
-
-	//The token address on the parent platform cryptocurrency.
-	TokenAddress string `json:"token_address"`
+type CryptocurrencyListing struct {
+	Id                     int                    `json:"id"`
+	Name                   string                 `json:"name"`
+	Symbol                 string                 `json:"symbol"`
+	Slug                   string                 `json:"slug"`
+	CmcRank                int                    `json:"cmc_rank"`
+	NumMarketPairs         int                    `json:"num_market_pairs"`
+	CirculatingSupply      float64                `json:"circulating_supply"`
+	TotalSupply            float64                `json:"total_supply"`
+	MarketCapByTotalSupply float64                `json:"market_cap_by_total_supply"`
+	MaxSupply              float64                `json:"max_supply"`
+	LastUpdated            *time.Time             `json:"last_updated"`
+	DateAdded              *time.Time             `json:"date_added"`
+	Tags                   []string               `json:"tags"`
+	Platform               Platform               `json:"platform"`
+	Quote                  map[string]MarketQuote `json:"quote"`
 }
 
-type ResponseStatus struct {
-	//Current timestamp (ISO 8601) on the server.
-	Timestamp *time.Time `json:"timestamp"`
+type CryptocurrencyListingsHistoricalRequest struct {
+	Date               string `url:"date,omitempty"`
+	Start              int    `url:"start,omitempty"`
+	Limit              int    `url:"limit,omitempty"`
+	Convert            string `url:"convert,omitempty"`
+	ConvertId          string `url:"convert_id,omitempty"`
+	Sort               string `url:"sort,omitempty"`
+	SortDir            string `url:"sort_dir,omitempty"`
+	CryptocurrencyType string `url:"cryptocurrency_type,omitempty"`
+	Aux                string `url:"aux,omitempty"`
+}
 
-	//An internal error code for the current error. If a unique platform error code is not available the HTTP status code is returned
-	ErrorCode int `json:"error_code"`
-
-	//An error message to go along with the error code.
-	ErrorMessage string `json:"error_message"`
-
-	//Number of milliseconds taken to generate this response.
-	Elapsed int `json:"elapsed"`
-
-	//Number of API call credits that were used for this call.
-	CreditCount int `json:"credit_count"`
+type CryptocurrencyListingsHistoricalResponse struct {
+	Data   []CryptocurrencyListing
+	Status ResponseStatus
 }
 
 type CryptocurrencyListingsLatestRequest struct {
@@ -208,41 +195,6 @@ type CryptocurrencyListingsLatestRequest struct {
 type CryptocurrencyListingsLatestResponse struct {
 	Data   []CryptocurrencyListing
 	Status ResponseStatus
-}
-
-type CryptocurrencyListingsHistoricalRequest struct {
-	Date               string `url:"date,omitempty"`
-	Start              int    `url:"start,omitempty"`
-	Limit              int    `url:"limit,omitempty"`
-	Convert            string `url:"convert,omitempty"`
-	ConvertId          string `url:"convert_id,omitempty"`
-	Sort               string `url:"sort,omitempty"`
-	SortDir            string `url:"sort_dir,omitempty"`
-	CryptocurrencyType string `url:"cryptocurrency_type,omitempty"`
-	Aux                string `url:"aux,omitempty"`
-}
-
-type CryptocurrencyListingsHistoricalResponse struct {
-	Data   []CryptocurrencyListing
-	Status ResponseStatus
-}
-
-type CryptocurrencyListing struct {
-	Id                     int                    `json:"id"`
-	Name                   string                 `json:"name"`
-	Symbol                 string                 `json:"symbol"`
-	Slug                   string                 `json:"slug"`
-	CmcRank                int                    `json:"cmc_rank"`
-	NumMarketPairs         int                    `json:"num_market_pairs"`
-	CirculatingSupply      float64                `json:"circulating_supply"`
-	TotalSupply            float64                `json:"total_supply"`
-	MarketCapByTotalSupply float64                `json:"market_cap_by_total_supply"`
-	MaxSupply              float64                `json:"max_supply"`
-	LastUpdated            *time.Time             `json:"last_updated"`
-	DateAdded              *time.Time             `json:"date_added"`
-	Tags                   []string               `json:"tags"`
-	Platform               Platform               `json:"platform"`
-	Quote                  map[string]MarketQuote `json:"quote"`
 }
 
 type MarketQuote struct {
@@ -370,95 +322,4 @@ type OHLCV struct {
 	Close       float64    `json:"close"`
 	Volume      float64    `json:"volume"`
 	LastUpdated *time.Time `json:"last_updated"`
-}
-
-type FiatMapRequest struct {
-	Start         int    `url:"start,omitempty"`
-	Limit         int    `url:"limit,omitempty"`
-	Sort          string `url:"sort,omitempty"`
-	IncludeMetals bool   `url:"include_metals,omitempty"`
-}
-
-type FiatMapResponse struct {
-	Data   []Fiat         `json:"data"`
-	Status ResponseStatus `json:"status"`
-}
-
-type Fiat struct {
-	//The unique CoinMarketCap ID for this asset.
-	Id int `json:"id"`
-
-	//The name of this asset.
-	Name string `json:"name"`
-
-	//The currency sign for this asset.
-	Sign string `json:"sign"`
-
-	//The ticker symbol for this asset, always in all caps.
-	Symbol string `json:"symbol"`
-}
-
-type GlobalMetricsQuotesLatestRequest struct {
-	//A comma-separated list of cryptocurrency or fiat currency symbols.
-	Convert string `url:"convert,omitempty"`
-
-	//A comma-separated list of CoinMarketCap IDs.
-	ConvertId string `url:"convert_id,omitempty"`
-}
-
-type GlobalMetricsQuotesLatestResponse struct {
-	Data   GlobalMetricsQuotesLatest `json:"data"`
-	Status ResponseStatus            `json:"status"`
-}
-
-type GlobalMetricsQuotesLatest struct {
-	BTCDominance           float64                        `json:"btc_dominance"`
-	ETHDominance           float64                        `json:"eth_dominance"`
-	ActiveCryptocurrencies float64                        `json:"active_cryptocurrencies"`
-	TotalCryptocurrencies  float64                        `json:"total_cryptocurrencies"`
-	ActiveMarketPairs      float64                        `json:"active_market_pairs"`
-	ActiveExchanges        float64                        `json:"active_exchanges"`
-	TotalExchanges         float64                        `json:"total_exchanges"`
-	LastUpdated            *time.Time                     `json:"last_updated"`
-	Quote                  map[string]*GlobalMetricsQuote `json:"quote"`
-}
-
-type GlobalMetricsQuote struct {
-	TotalMarketCap           float64    `json:"total_market_cap"`
-	TotalVolume24H           float64    `json:"total_volume_24h"`
-	TotalVolume24HReported   float64    `json:"total_volume_24h_reported"`
-	AltcoinVolume24H         float64    `json:"altcoin_volume_24h"`
-	AltcoinVolume24HReported float64    `json:"altcoin_volume_24h_reported"`
-	AltcoinMarketCap         float64    `json:"altcoin_market_cap"`
-	LastUpdated              *time.Time `json:"last_updated"`
-}
-
-type ExchangeInfoRequest struct {
-	Id   string `url:"id,omitempty"`
-	Slug string `url:"slug,omitempty"`
-	Aux  string `url:"aux,omitempty"`
-}
-
-type ExchangeInfoResponse struct {
-	Data   map[string]*ExchangeInfo `json:"data"`
-	Status ResponseStatus           `json:"status"`
-}
-
-type ExchangeInfo struct {
-	Id           int          `json:"id"`
-	Name         string       `json:"name"`
-	Slug         string       `json:"slug"`
-	Logo         string       `json:"logo"`
-	Description  string       `json:"description"`
-	DateLaunched *time.Time   `json:"date_launched"`
-	Notice       string       `json:"notice"`
-	Urls         ExchangeUrls `json:"urls"`
-}
-
-type ExchangeUrls struct {
-	Website []string `json:"website"`
-	Blog    []string `json:"blog"`
-	Chat    []string `json:"chat"`
-	Fee     []string `json:"fee"`
-	Twitter []string `json:"twitter"`
 }

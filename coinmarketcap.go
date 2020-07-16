@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/drankou/coinmarketcap-go/types"
 	"github.com/google/go-querystring/query"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -26,7 +27,11 @@ func (c *CoinmarketcapClient) Init() error {
 	return nil
 }
 
-func (c *CoinmarketcapClient) CryptocurrencyIdMap(request *CryptocurrencyMapRequest) ([]Cryptocurrency, error) {
+// ------ Cryptocurrency ------ //
+
+// Returns a mapping of all cryptocurrencies to unique CoinMarketCap ids.
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1CryptocurrencyMap
+func (c *CoinmarketcapClient) CryptocurrencyIdMap(request *types.CryptocurrencyMapRequest) ([]types.Cryptocurrency, error) {
 	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/map", nil)
 	if err != nil {
 		log.Error(err)
@@ -48,7 +53,7 @@ func (c *CoinmarketcapClient) CryptocurrencyIdMap(request *CryptocurrencyMapRequ
 			return nil, err
 		}
 
-		var cmcIdMapResponse CryptocurrencyMapResponse
+		var cmcIdMapResponse types.CryptocurrencyMapResponse
 		err = json.Unmarshal(respBody, &cmcIdMapResponse)
 		if err != nil {
 			return nil, err
@@ -60,7 +65,9 @@ func (c *CoinmarketcapClient) CryptocurrencyIdMap(request *CryptocurrencyMapRequ
 	}
 }
 
-func (c *CoinmarketcapClient) CryptocurrencyInfo(request *CryptocurrencyInfoRequest) (map[string]*CryptocurrencyInfo, error) {
+// Returns all static metadata available for one or more cryptocurrencies.
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1CryptocurrencyInfo
+func (c *CoinmarketcapClient) CryptocurrencyInfo(request *types.CryptocurrencyInfoRequest) (map[string]*types.CryptocurrencyInfo, error) {
 	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/info", nil)
 	if err != nil {
 		log.Error(err)
@@ -82,7 +89,7 @@ func (c *CoinmarketcapClient) CryptocurrencyInfo(request *CryptocurrencyInfoRequ
 			return nil, err
 		}
 
-		var cmcIdMapResponse CryptocurrencyInfoResponse
+		var cmcIdMapResponse types.CryptocurrencyInfoResponse
 		err = json.Unmarshal(respBody, &cmcIdMapResponse)
 		if err != nil {
 			return nil, err
@@ -94,41 +101,9 @@ func (c *CoinmarketcapClient) CryptocurrencyInfo(request *CryptocurrencyInfoRequ
 	}
 }
 
-func (c *CoinmarketcapClient) CryptocurrencyListingsLatest(request *CryptocurrencyListingsLatestRequest) ([]CryptocurrencyListing, error) {
-	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/listings/latest", nil)
-	if err != nil {
-		log.Error(err)
-	}
-
-	err = prepareHttpRequest(httpRequest, request)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.client.Do(httpRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode == http.StatusOK {
-		respBody, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		var cmcIdMapResponse CryptocurrencyListingsLatestResponse
-		err = json.Unmarshal(respBody, &cmcIdMapResponse)
-		if err != nil {
-			return nil, err
-		}
-
-		return cmcIdMapResponse.Data, nil
-	} else {
-		return nil, errors.New(fmt.Sprintf("CryptocurrencyListingsLatest: %d: %s", resp.StatusCode, resp.Status))
-	}
-}
-
-func (c *CoinmarketcapClient) CryptocurrencyListingsHistorical(request *CryptocurrencyListingsHistoricalRequest) ([]CryptocurrencyListing, error) {
+// Returns a ranked and sorted list of all cryptocurrencies for a historical UTC date.
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1CryptocurrencyListingsHistorical
+func (c *CoinmarketcapClient) CryptocurrencyListingsHistorical(request *types.CryptocurrencyListingsHistoricalRequest) ([]types.CryptocurrencyListing, error) {
 	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/listings/historical", nil)
 	if err != nil {
 		log.Error(err)
@@ -150,7 +125,7 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsHistorical(request *Cryptocu
 			return nil, err
 		}
 
-		var cmcIdMapResponse CryptocurrencyListingsHistoricalResponse
+		var cmcIdMapResponse types.CryptocurrencyListingsHistoricalResponse
 		err = json.Unmarshal(respBody, &cmcIdMapResponse)
 		if err != nil {
 			return nil, err
@@ -162,7 +137,45 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsHistorical(request *Cryptocu
 	}
 }
 
-func (c *CoinmarketcapClient) CryptocurrencyOHLCVLatest(request *CryptocurrencyOHLCVLatestRequest) (map[string]*CryptocurrencyOHLCV, error) {
+// Returns a paginated list of all active cryptocurrencies with latest market data.
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1CryptocurrencyListingsLatest
+func (c *CoinmarketcapClient) CryptocurrencyListingsLatest(request *types.CryptocurrencyListingsLatestRequest) ([]types.CryptocurrencyListing, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/listings/latest", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse types.CryptocurrencyListingsLatestResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("CryptocurrencyListingsLatest: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
+// Returns the latest OHLCV (Open, High, Low, Close, Volume) market values for one or more cryptocurrencies for the current UTC day.
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1CryptocurrencyOhlcvLatest
+func (c *CoinmarketcapClient) CryptocurrencyOHLCVLatest(request *types.CryptocurrencyOHLCVLatestRequest) (map[string]*types.CryptocurrencyOHLCV, error) {
 	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/ohlcv/latest", nil)
 	if err != nil {
 		log.Error(err)
@@ -184,7 +197,7 @@ func (c *CoinmarketcapClient) CryptocurrencyOHLCVLatest(request *CryptocurrencyO
 			return nil, err
 		}
 
-		var cmcIdMapResponse CryptocurrencyOHLCVLatestResponse
+		var cmcIdMapResponse types.CryptocurrencyOHLCVLatestResponse
 		err = json.Unmarshal(respBody, &cmcIdMapResponse)
 		if err != nil {
 			return nil, err
@@ -196,7 +209,7 @@ func (c *CoinmarketcapClient) CryptocurrencyOHLCVLatest(request *CryptocurrencyO
 	}
 }
 
-func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *CryptocurrencyQuotesLatestRequest) (map[string]CryptocurrencyQuote, error) {
+func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *types.CryptocurrencyQuotesLatestRequest) (map[string]types.CryptocurrencyQuote, error) {
 	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/quotes/latest", nil)
 	if err != nil {
 		log.Error(err)
@@ -218,7 +231,7 @@ func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *Cryptocurrency
 			return nil, err
 		}
 
-		var cmcIdMapResponse CryptocurrencyQuotesLatestResponse
+		var cmcIdMapResponse types.CryptocurrencyQuotesLatestResponse
 		err = json.Unmarshal(respBody, &cmcIdMapResponse)
 		if err != nil {
 			return nil, err
@@ -230,7 +243,11 @@ func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *Cryptocurrency
 	}
 }
 
-func (c *CoinmarketcapClient) FiatMap(request *FiatMapRequest) ([]Fiat, error) {
+// ------ Fiat ------ //
+
+// Returns a mapping of all supported fiat currencies to unique CoinMarketCap ids.
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1FiatMap
+func (c *CoinmarketcapClient) FiatMap(request *types.FiatMapRequest) ([]types.Fiat, error) {
 	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/fiat/map", nil)
 	if err != nil {
 		log.Error(err)
@@ -251,7 +268,7 @@ func (c *CoinmarketcapClient) FiatMap(request *FiatMapRequest) ([]Fiat, error) {
 			return nil, err
 		}
 
-		var cmcIdMapResponse FiatMapResponse
+		var cmcIdMapResponse types.FiatMapResponse
 		err = json.Unmarshal(respBody, &cmcIdMapResponse)
 		if err != nil {
 			return nil, err
@@ -263,40 +280,11 @@ func (c *CoinmarketcapClient) FiatMap(request *FiatMapRequest) ([]Fiat, error) {
 	}
 }
 
-func (c *CoinmarketcapClient) GlobalMetricsQuotesLatest(request *GlobalMetricsQuotesLatestRequest) (*GlobalMetricsQuotesLatest, error) {
-	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/global-metrics/quotes/latest", nil)
-	if err != nil {
-		log.Error(err)
-	}
+// ------ Exchange ------ //
 
-	err = prepareHttpRequest(httpRequest, request)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := c.client.Do(httpRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode == http.StatusOK {
-		respBody, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		var cmcIdMapResponse GlobalMetricsQuotesLatestResponse
-		err = json.Unmarshal(respBody, &cmcIdMapResponse)
-		if err != nil {
-			return nil, err
-		}
-
-		return &cmcIdMapResponse.Data, nil
-	} else {
-		return nil, errors.New(fmt.Sprintf("GlobalMetricsQuotesLatest: %d: %s", resp.StatusCode, resp.Status))
-	}
-}
-
-func (c *CoinmarketcapClient) ExchangeInfo(request *ExchangeInfoRequest) (map[string]*ExchangeInfo, error) {
+// Returns all static metadata for one or more exchanges.
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1ExchangeInfo
+func (c *CoinmarketcapClient) ExchangeInfo(request *types.ExchangeInfoRequest) (map[string]*types.ExchangeInfo, error) {
 	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/exchange/info", nil)
 	if err != nil {
 		log.Error(err)
@@ -319,7 +307,7 @@ func (c *CoinmarketcapClient) ExchangeInfo(request *ExchangeInfoRequest) (map[st
 			return nil, err
 		}
 
-		var cmcIdMapResponse ExchangeInfoResponse
+		var cmcIdMapResponse types.ExchangeInfoResponse
 		err = json.Unmarshal(respBody, &cmcIdMapResponse)
 		if err != nil {
 			return nil, err
@@ -328,6 +316,116 @@ func (c *CoinmarketcapClient) ExchangeInfo(request *ExchangeInfoRequest) (map[st
 		return cmcIdMapResponse.Data, nil
 	} else {
 		return nil, errors.New(fmt.Sprintf("ExchangeInfo: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
+// Returns a paginated list of all cryptocurrency exchanges by CoinMarketCap ID.
+// By default listing_status=active
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1ExchangeMap
+func (c *CoinmarketcapClient) ExchangeIdMap(request *types.ExchangeIdMapRequest) ([]types.Exchange, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/exchange/map", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+
+	log.Print(httpRequest.URL.String())
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse types.ExchangeIdMapResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("ExchangeInfo: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
+// ------ Global-Metrics ------ //
+
+// Returns the latest global cryptocurrency market metrics.
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1GlobalmetricsQuotesLatest
+func (c *CoinmarketcapClient) GlobalMetricsQuotesLatest(request *types.GlobalMetricsQuotesLatestRequest) (*types.GlobalMetricsQuotesLatest, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/global-metrics/quotes/latest", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse types.GlobalMetricsQuotesLatestResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return &cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("GlobalMetricsQuotesLatest: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
+// Returns an interval of historical global cryptocurrency market metrics based on time and interval parameters.
+// https://pro.coinmarketcap.com/api/v1/#operation/getV1GlobalmetricsQuotesHistorical
+func (c *CoinmarketcapClient) GlobalMetricsQuotesHistorical(request *types.GlobalMetricsQuotesHistoricalRequest) ([]types.AggregatedMarketQuote, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/global-metrics/quotes/historical", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse types.GlobalMetricsQuotesHistoricalResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data.Quotes, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("GlobalMetricsQuotesHistorical: %d: %s", resp.StatusCode, resp.Status))
 	}
 }
 

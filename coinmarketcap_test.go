@@ -1,6 +1,7 @@
 package coinmarketcap_go
 
 import (
+	"github.com/drankou/coinmarketcap-go/types"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -29,7 +30,7 @@ func TestCoinmarketcapClient_CryptocurrencyIdMap(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &CryptocurrencyMapRequest{
+	req := &types.CryptocurrencyMapRequest{
 		ListingStatus: "active,inactive,untracked",
 	}
 
@@ -48,7 +49,7 @@ func TestCoinmarketcapClient_CryptocurrencyIdMap2(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &CryptocurrencyMapRequest{
+	req := &types.CryptocurrencyMapRequest{
 		Symbol: "BTC",
 	}
 
@@ -68,7 +69,7 @@ func TestCoinmarketcapClient_CryptocurrencyInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &CryptocurrencyInfoRequest{
+	req := &types.CryptocurrencyInfoRequest{
 		Symbol: "BTC,ETH",
 	}
 
@@ -89,7 +90,7 @@ func TestCoinmarketcapClient_CryptocurrencyListingsLatest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &CryptocurrencyListingsLatestRequest{}
+	req := &types.CryptocurrencyListingsLatestRequest{}
 
 	cryptocurrencyInfoMap, err := cmc.CryptocurrencyListingsLatest(req)
 	if err != nil {
@@ -106,7 +107,7 @@ func TestCoinmarketcapClient_CryptocurrencyListingsHistorical(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &CryptocurrencyListingsHistoricalRequest{
+	req := &types.CryptocurrencyListingsHistoricalRequest{
 		Convert: "USD,BTC",
 		Date:    "2019-08-19",
 	}
@@ -126,7 +127,7 @@ func TestCoinmarketcapClient_CryptocurrencyQuotesLatest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &CryptocurrencyQuotesLatestRequest{
+	req := &types.CryptocurrencyQuotesLatestRequest{
 		Symbol: "BTC,ETH",
 	}
 
@@ -148,7 +149,7 @@ func TestCoinmarketcapClient_FiatMap(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &FiatMapRequest{}
+	req := &types.FiatMapRequest{}
 	assets, err := cmc.FiatMap(req)
 	if err != nil {
 		t.Fatal(err)
@@ -164,8 +165,24 @@ func TestCoinmarketcapClient_GlobalMetricsQuotesLatest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &GlobalMetricsQuotesLatestRequest{}
+	req := &types.GlobalMetricsQuotesLatestRequest{}
 	globalMetrics, err := cmc.GlobalMetricsQuotesLatest(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotNil(t, globalMetrics, "global metrics response is nil")
+}
+
+func TestCoinmarketcapClient_GlobalMetricsQuotesHistorical(t *testing.T) {
+	cmc := &CoinmarketcapClient{}
+	err := cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &types.GlobalMetricsQuotesHistoricalRequest{}
+	globalMetrics, err := cmc.GlobalMetricsQuotesHistorical(req)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +197,7 @@ func TestCoinmarketcapClient_CryptocurrencyOHLCVLatest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &CryptocurrencyOHLCVLatestRequest{
+	req := &types.CryptocurrencyOHLCVLatestRequest{
 		Symbol:  "BTC,ETH",
 		Convert: "USD",
 	}
@@ -209,7 +226,7 @@ func TestCoinmarketcapClient_ExchangeInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req := &ExchangeInfoRequest{
+	req := &types.ExchangeInfoRequest{
 		Slug: "binance",
 	}
 
@@ -225,4 +242,24 @@ func TestCoinmarketcapClient_ExchangeInfo(t *testing.T) {
 	}
 
 	assert.NotNil(t, exchangeInfoMap["binance"], "missing data for binance")
+}
+
+func TestCoinmarketcapClient_ExchangeIdMap(t *testing.T) {
+	cmc := &CoinmarketcapClient{}
+	err := cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &types.ExchangeIdMapRequest{
+		ListingStatus: "active",
+		Slug:          "binance",
+	}
+
+	exchanges, err := cmc.ExchangeIdMap(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, exchanges, "empty exchanges response")
 }
