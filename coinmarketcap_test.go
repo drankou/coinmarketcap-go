@@ -2,9 +2,17 @@ package coinmarketcap_go
 
 import (
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func TestCoinmarketcapClient_Init(t *testing.T) {
 	c := &CoinmarketcapClient{}
@@ -15,13 +23,8 @@ func TestCoinmarketcapClient_Init(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyIdMap(t *testing.T) {
-	err := godotenv.Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	cmc := &CoinmarketcapClient{}
-	err = cmc.Init()
+	err := cmc.Init()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,13 +42,8 @@ func TestCoinmarketcapClient_CryptocurrencyIdMap(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyIdMap2(t *testing.T) {
-	err := godotenv.Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	cmc := &CoinmarketcapClient{}
-	err = cmc.Init()
+	err := cmc.Init()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,13 +62,8 @@ func TestCoinmarketcapClient_CryptocurrencyIdMap2(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyInfo(t *testing.T) {
-	err := godotenv.Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	cmc := &CoinmarketcapClient{}
-	err = cmc.Init()
+	err := cmc.Init()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -90,13 +83,8 @@ func TestCoinmarketcapClient_CryptocurrencyInfo(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyListingsLatest(t *testing.T) {
-	err := godotenv.Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	cmc := &CoinmarketcapClient{}
-	err = cmc.Init()
+	err := cmc.Init()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,20 +100,15 @@ func TestCoinmarketcapClient_CryptocurrencyListingsLatest(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyListingsHistorical(t *testing.T) {
-	err := godotenv.Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	cmc := &CoinmarketcapClient{}
-	err = cmc.Init()
+	err := cmc.Init()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	req := &CryptocurrencyListingsHistoricalRequest{
 		Convert: "USD,BTC",
-		Date: "2019-08-19",
+		Date:    "2019-08-19",
 	}
 
 	cryptocurrencyInfoMap, err := cmc.CryptocurrencyListingsHistorical(req)
@@ -137,13 +120,8 @@ func TestCoinmarketcapClient_CryptocurrencyListingsHistorical(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyQuotesLatest(t *testing.T) {
-	err := godotenv.Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	cmc := &CoinmarketcapClient{}
-	err = cmc.Init()
+	err := cmc.Init()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,13 +142,8 @@ func TestCoinmarketcapClient_CryptocurrencyQuotesLatest(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_FiatMap(t *testing.T) {
-	err := godotenv.Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	cmc := &CoinmarketcapClient{}
-	err = cmc.Init()
+	err := cmc.Init()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,15 +157,9 @@ func TestCoinmarketcapClient_FiatMap(t *testing.T) {
 	assert.NotEmpty(t, assets, "empty assets response")
 }
 
-
 func TestCoinmarketcapClient_GlobalMetricsQuotesLatest(t *testing.T) {
-	err := godotenv.Load()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	cmc := &CoinmarketcapClient{}
-	err = cmc.Init()
+	err := cmc.Init()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -204,4 +171,33 @@ func TestCoinmarketcapClient_GlobalMetricsQuotesLatest(t *testing.T) {
 	}
 
 	assert.NotNil(t, globalMetrics, "global metrics response is nil")
+}
+
+func TestCoinmarketcapClient_CryptocurrencyOHLCVLatest(t *testing.T) {
+	cmc := &CoinmarketcapClient{}
+	err := cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &CryptocurrencyOHLCVLatestRequest{
+		Symbol:  "BTC,ETH",
+		Convert: "USD",
+	}
+	cryptocurrencyOHLCVMap, err := cmc.CryptocurrencyOHLCVLatest(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, cryptocurrencyOHLCVMap, "empty response")
+
+	for asset, ohlcv := range cryptocurrencyOHLCVMap {
+		t.Logf("OHLCV response for %s: %+v", asset, ohlcv)
+
+		assert.NotNil(t, ohlcv.QuoteOHLCV["USD"], "cryptocurrency OHLCV map is empty")
+		t.Logf("OHLCV prices for %s :%+v", asset, ohlcv.QuoteOHLCV["USD"])
+	}
+
+	assert.NotNil(t, cryptocurrencyOHLCVMap["BTC"], "missing data for BTC")
+	assert.NotNil(t, cryptocurrencyOHLCVMap["ETH"], "missing data for ETH")
 }

@@ -1,5 +1,7 @@
 package coinmarketcap_go
 
+import "time"
+
 type CryptocurrencyStatus int
 
 const (
@@ -59,7 +61,7 @@ type CryptocurrencyInfo struct {
 	Description string `json:"description"`
 
 	//Timestamp (ISO 8601) of when this cryptocurrency was added to CoinMarketCap.
-	DateAdded string `json:"date_added"`
+	DateAdded *time.Time `json:"date_added"`
 
 	//A Markdown formatted notice that may highlight a significant event
 	//or condition that is impacting the cryptocurrency or how it is displayed.
@@ -138,10 +140,10 @@ type Cryptocurrency struct {
 	Status string `json:"status"`
 
 	//Timestamp (ISO 8601) of the date this cryptocurrency was first available on the platform.
-	FirstHistoricalData string `json:"first_historical_data"`
+	FirstHistoricalData *time.Time `json:"first_historical_data"`
 
 	//Timestamp (ISO 8601) of the last time this cryptocurrency's market data was updated.
-	LastHistoricalData string `json:"last_historical_data"`
+	LastHistoricalData *time.Time `json:"last_historical_data"`
 
 	//Metadata about the parent cryptocurrency platform this cryptocurrency belongs to if it is a token, otherwise null.
 	Platform Platform `json:"platform"`
@@ -166,7 +168,7 @@ type Platform struct {
 
 type ResponseStatus struct {
 	//Current timestamp (ISO 8601) on the server.
-	Timestamp string `json:"timestamp"`
+	Timestamp *time.Time `json:"timestamp"`
 
 	//An internal error code for the current error. If a unique platform error code is not available the HTTP status code is returned
 	ErrorCode int `json:"error_code"`
@@ -236,26 +238,26 @@ type CryptocurrencyListing struct {
 	TotalSupply            float64                `json:"total_supply"`
 	MarketCapByTotalSupply float64                `json:"market_cap_by_total_supply"`
 	MaxSupply              float64                `json:"max_supply"`
-	LastUpdated            string                 `json:"last_updated"`
-	DateAdded              string                 `json:"date_added"`
+	LastUpdated            *time.Time             `json:"last_updated"`
+	DateAdded              *time.Time             `json:"date_added"`
 	Tags                   []string               `json:"tags"`
 	Platform               Platform               `json:"platform"`
 	Quote                  map[string]MarketQuote `json:"quote"`
 }
 
 type MarketQuote struct {
-	Price             float64 `json:"price"`
-	Volume24H         float64 `json:"volume_24h"`
-	Volume24HReported float64 `json:"volume_24h_reported"`
-	Volume7d          float64 `json:"volume_7d"`
-	Volume7dReported  float64 `json:"volume_7d_reported"`
-	Volume30D         float64 `json:"volume_30d"`
-	Volume30DReported float64 `json:"volume_30d_reported"`
-	MarketCap         float64 `json:"market_cap"`
-	PercentChange1H   float64 `json:"percent_change_1h"`
-	PercentChange24H  float64 `json:"percent_change_24h"`
-	PercentChange7D   float64 `json:"percent_change_7d"`
-	LastUpdated       string  `json:"last_updated"`
+	Price             float64    `json:"price"`
+	Volume24H         float64    `json:"volume_24h"`
+	Volume24HReported float64    `json:"volume_24h_reported"`
+	Volume7d          float64    `json:"volume_7d"`
+	Volume7dReported  float64    `json:"volume_7d_reported"`
+	Volume30D         float64    `json:"volume_30d"`
+	Volume30DReported float64    `json:"volume_30d_reported"`
+	MarketCap         float64    `json:"market_cap"`
+	PercentChange1H   float64    `json:"percent_change_1h"`
+	PercentChange24H  float64    `json:"percent_change_24h"`
+	PercentChange7D   float64    `json:"percent_change_7d"`
+	LastUpdated       *time.Time `json:"last_updated"`
 }
 
 type CryptocurrencyQuotesLatestRequest struct {
@@ -322,7 +324,7 @@ type CryptocurrencyQuote struct {
 	MaxSupply float64 `json:"max_supply"`
 
 	//Timestamp (ISO 8601) of when this cryptocurrency was added to CoinMarketCap.
-	DateAdded string `json:"date_added"`
+	DateAdded *time.Time `json:"date_added"`
 
 	//Array of tags associated with this cryptocurrency.
 	Tags []string `json:"tags"`
@@ -331,9 +333,43 @@ type CryptocurrencyQuote struct {
 	Platform Platform `json:"platform"`
 
 	//Timestamp (ISO 8601) of the last time this cryptocurrency's market data was updated.
-	LastUpdated string `json:"last_updated"`
+	LastUpdated *time.Time `json:"last_updated"`
 
 	Quote map[string]MarketQuote `json:"quote"`
+}
+
+type CryptocurrencyOHLCVLatestRequest struct {
+	Id          string `url:"id,omitempty"`
+	Symbol      string `url:"symbol,omitempty"`
+	Convert     string `url:"convert,omitempty"`
+	ConvertId   string `url:"convert_id,omitempty"`
+	SkipInvalid string `url:"skip_invalid,omitempty"`
+}
+
+type CryptocurrencyOHLCVLatestResponse struct {
+	Data   map[string]*CryptocurrencyOHLCV `json:"data"`
+	Status ResponseStatus                  `json:"status"`
+}
+
+type CryptocurrencyOHLCV struct {
+	Id          int               `json:"id"`
+	Name        string            `json:"name"`
+	Symbol      string            `json:"symbol"`
+	LastUpdated *time.Time        `json:"last_updated"`
+	TimeOpen    *time.Time        `json:"time_open"`
+	TimeHigh    *time.Time        `json:"time_high"`
+	TimeLow     *time.Time        `json:"time_low"`
+	TimeClose   *time.Time        `json:"time_close"`
+	QuoteOHLCV  map[string]*OHLCV `json:"quote"`
+}
+
+type OHLCV struct {
+	Open        float64    `json:"open"`
+	High        float64    `json:"high"`
+	Low         float64    `json:"low"`
+	Close       float64    `json:"close"`
+	Volume      float64    `json:"volume"`
+	LastUpdated *time.Time `json:"last_updated"`
 }
 
 type FiatMapRequest struct {
@@ -376,23 +412,23 @@ type GlobalMetricsQuotesLatestResponse struct {
 }
 
 type GlobalMetricsQuotesLatest struct {
-	BTCDominance           float64                       `json:"btc_dominance"`
-	ETHDominance           float64                       `json:"eth_dominance"`
-	ActiveCryptocurrencies float64                       `json:"active_cryptocurrencies"`
-	TotalCryptocurrencies  float64                       `json:"total_cryptocurrencies"`
-	ActiveMarketPairs      float64                       `json:"active_market_pairs"`
-	ActiveExchanges        float64                       `json:"active_exchanges"`
-	TotalExchanges         float64                       `json:"total_exchanges"`
-	LastUpdated            string                        `json:"last_updated"`
-	Quote                  map[string]GlobalMetricsQuote `json:"quote"`
+	BTCDominance           float64                        `json:"btc_dominance"`
+	ETHDominance           float64                        `json:"eth_dominance"`
+	ActiveCryptocurrencies float64                        `json:"active_cryptocurrencies"`
+	TotalCryptocurrencies  float64                        `json:"total_cryptocurrencies"`
+	ActiveMarketPairs      float64                        `json:"active_market_pairs"`
+	ActiveExchanges        float64                        `json:"active_exchanges"`
+	TotalExchanges         float64                        `json:"total_exchanges"`
+	LastUpdated            *time.Time                     `json:"last_updated"`
+	Quote                  map[string]*GlobalMetricsQuote `json:"quote"`
 }
 
 type GlobalMetricsQuote struct {
-	TotalMarketCap           float64 `json:"total_market_cap"`
-	TotalVolume24H           float64 `json:"total_volume_24h"`
-	TotalVolume24HReported   float64 `json:"total_volume_24h_reported"`
-	AltcoinVolume24H         float64 `json:"altcoin_volume_24h"`
-	AltcoinVolume24HReported float64 `json:"altcoin_volume_24h_reported"`
-	AltcoinMarketCap         float64 `json:"altcoin_market_cap"`
-	LastUpdated              string  `json:"last_updated"`
+	TotalMarketCap           float64    `json:"total_market_cap"`
+	TotalVolume24H           float64    `json:"total_volume_24h"`
+	TotalVolume24HReported   float64    `json:"total_volume_24h_reported"`
+	AltcoinVolume24H         float64    `json:"altcoin_volume_24h"`
+	AltcoinVolume24HReported float64    `json:"altcoin_volume_24h_reported"`
+	AltcoinMarketCap         float64    `json:"altcoin_market_cap"`
+	LastUpdated              *time.Time `json:"last_updated"`
 }

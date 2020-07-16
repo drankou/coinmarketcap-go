@@ -162,6 +162,40 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsHistorical(request *Cryptocu
 	}
 }
 
+func (c *CoinmarketcapClient) CryptocurrencyOHLCVLatest(request *CryptocurrencyOHLCVLatestRequest) (map[string]*CryptocurrencyOHLCV, error) {
+	httpRequest, err := http.NewRequest("GET", SANDBOX_URL+"/v1/cryptocurrency/ohlcv/latest", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse CryptocurrencyOHLCVLatestResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("CryptocurrencyOHLCVLatest: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
 func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *CryptocurrencyQuotesLatestRequest) (map[string]CryptocurrencyQuote, error) {
 	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/quotes/latest", nil)
 	if err != nil {
