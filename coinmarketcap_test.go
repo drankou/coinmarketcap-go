@@ -247,6 +247,32 @@ func TestCoinmarketcapClient_CryptocurrencyOHLCVLatest(t *testing.T) {
 	assert.NotNil(t, cryptocurrencyOHLCVMap["ETH"], "missing data for ETH")
 }
 
+func TestCoinmarketcapClient_CryptocurrencyPricePerformanceStats(t *testing.T) {
+	cmc := &CoinmarketcapClient{}
+	err := cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &types.CryptocurrencyPricePerformanceStatsRequest{
+		Symbol:  "BTC,ETH",
+		Convert: "USD",
+	}
+	pricePerfomanceStatsMap, err := cmc.CryptocurrencyPricePerformanceStats(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, pricePerfomanceStatsMap, "empty response")
+
+	assert.NotNil(t, pricePerfomanceStatsMap["BTC"], "missing data for BTC")
+	assert.NotNil(t, pricePerfomanceStatsMap["ETH"], "missing data for ETH")
+
+	for asset, stats := range pricePerfomanceStatsMap {
+		t.Logf("Price stats for %s: %+v", asset, stats)
+	}
+}
+
 func TestCoinmarketcapClient_ExchangeInfo(t *testing.T) {
 	cmc := &CoinmarketcapClient{}
 	err := cmc.Init()

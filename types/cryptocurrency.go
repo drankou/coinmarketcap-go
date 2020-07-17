@@ -319,7 +319,7 @@ type CryptocurrencyOHLCVHistoricalRequest struct {
 
 type CryptocurrencyOHLCVHistoricalResponse struct {
 	Data   map[string]*OHLCVHistoricalResult `json:"data"`
-	Status ResponseStatus                   `json:"status"`
+	Status ResponseStatus                    `json:"status"`
 }
 
 type OHLCVHistoricalResult struct {
@@ -352,4 +352,48 @@ type OHLCV struct {
 	Close       float64    `json:"close"`
 	Volume      float64    `json:"volume"`
 	LastUpdated *time.Time `json:"last_updated"`
+}
+
+type CryptocurrencyPricePerformanceStatsRequest struct {
+	Id         string `url:"id,omitempty"`
+	Slug       string `url:"slug,omitempty"`
+	Symbol     string `url:"symbol,omitempty"`
+	TimePeriod string `url:"time_period,omitempty"`
+	Convert    string `url:"convert,omitempty"`
+	ConvertId  string `url:"convert_id,omitempty"`
+}
+
+type CryptocurrencyPricePerformanceStatsResponse struct {
+	Data   map[string]*PricePerformanceStats `json:"data"`
+	Status ResponseStatus                    `json:"status"`
+}
+
+type PricePerformanceStats struct {
+	Id          int                `json:"id"`
+	Name        string             `json:"name"`
+	Symbol      string             `json:"symbol"`
+	Slug        string             `json:"slug"`
+	LastUpdated *time.Time         `json:"last_updated"`
+	Periods     map[string]*Period `json:"periods"`
+}
+
+type Period struct {
+	OpenTimestamp  *time.Time            `json:"open_timestamp"`
+	HighTimestamp  *time.Time            `json:"high_timestamp"`
+	LowTimestamp   *time.Time            `json:"low_timestamp"`
+	CloseTimestamp *time.Time            `json:"close_timestamp"`
+	Quote          map[string]*StatsQuote `json:"quote"`
+}
+
+type StatsQuote struct {
+	Open           float64    `json:"open"`
+	OpenTimestamp  *time.Time `json:"open_timestamp"`
+	High           float64    `json:"high"`
+	HighTimestamp  *time.Time `json:"high_timestamp"`
+	Low            float64    `json:"low"`
+	LowTimestamp   *time.Time `json:"low_timestamp"`
+	Close          float64    `json:"close"`
+	CloseTimestamp *time.Time `json:"close_timestamp"`
+	PercentChange  float64    `json:"percent_change"`
+	PriceChange    float64    `json:"price_change"`
 }

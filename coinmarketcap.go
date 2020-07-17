@@ -277,6 +277,40 @@ func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *types.Cryptocu
 	}
 }
 
+func (c *CoinmarketcapClient) CryptocurrencyPricePerformanceStats(request *types.CryptocurrencyPricePerformanceStatsRequest) (map[string]*types.PricePerformanceStats, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/price-performance-stats/latest", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse types.CryptocurrencyPricePerformanceStatsResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("CryptocurrencyPricePerformanceStats: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
 // ------ Fiat ------ //
 
 // Returns a mapping of all supported fiat currencies to unique CoinMarketCap ids.
