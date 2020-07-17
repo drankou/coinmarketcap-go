@@ -317,3 +317,41 @@ func TestCoinmarketcapClient_ExchangeIdMap(t *testing.T) {
 
 	assert.NotEmpty(t, exchanges, "empty exchanges response")
 }
+
+func TestCoinmarketcapClient_PartnersFCASListingsLatest(t *testing.T) {
+	cmc := &CoinmarketcapClient{}
+	err := cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &types.FCASListingsLatestRequest{}
+
+	fcasAssets, err := cmc.PartnersFCASListingsLatest(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, fcasAssets, "empty fcas ratings response")
+}
+
+func TestCoinmarketcapClient_PartnersFCASQuotesLatest(t *testing.T) {
+	cmc := &CoinmarketcapClient{}
+	err := cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &types.FCASQuotesLatestRequest{
+		Symbol: "BTC,ETH",
+	}
+
+	fcasAssetsMap, err := cmc.PartnersFCASQuotesLatest(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, fcasAssetsMap, "empty fcas ratings response")
+	assert.NotNil(t, fcasAssetsMap["BTC"], "missing data for BTC")
+	assert.NotNil(t, fcasAssetsMap["ETH"], "missing data for ETH")
+}

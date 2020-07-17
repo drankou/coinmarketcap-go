@@ -497,6 +497,73 @@ func (c *CoinmarketcapClient) GlobalMetricsQuotesHistorical(request *types.Globa
 	}
 }
 
+// ------ Partners ------ //
+func (c *CoinmarketcapClient) PartnersFCASListingsLatest(request *types.FCASListingsLatestRequest) ([]types.FCASRating, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/partners/flipside-crypto/fcas/listings/latest", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse types.FCASListingsLatestResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("PartnersFCASListingsLatest: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
+func (c *CoinmarketcapClient) PartnersFCASQuotesLatest(request *types.FCASQuotesLatestRequest) (map[string]*types.FCASRating, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/partners/flipside-crypto/fcas/quotes/latest", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse types.FCASQuotesLatestResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("PartnersFCASQuotesLatest: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
 func prepareHttpRequest(httpRequest *http.Request, request interface{}) error {
 	values, err := query.Values(request)
 	if err != nil {
