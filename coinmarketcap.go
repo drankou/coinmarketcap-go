@@ -173,6 +173,40 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsLatest(request *types.Crypto
 	}
 }
 
+func (c *CoinmarketcapClient) CryptocurrencyOHLCVHistorical(request *types.CryptocurrencyOHLCVHistoricalRequest) (map[string]*types.OHLCVHistoricalResult, error) {
+	httpRequest, err := http.NewRequest("GET", API_URL+"/v1/cryptocurrency/ohlcv/historical", nil)
+	if err != nil {
+		log.Error(err)
+	}
+
+	err = prepareHttpRequest(httpRequest, request)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.client.Do(httpRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		respBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var cmcIdMapResponse types.CryptocurrencyOHLCVHistoricalResponse
+		err = json.Unmarshal(respBody, &cmcIdMapResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		return cmcIdMapResponse.Data, nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("CryptocurrencyOHLCVHistorical: %d: %s", resp.StatusCode, resp.Status))
+	}
+}
+
 // Returns the latest OHLCV (Open, High, Low, Close, Volume) market values for one or more cryptocurrencies for the current UTC day.
 // https://pro.coinmarketcap.com/api/v1/#operation/getV1CryptocurrencyOhlcvLatest
 func (c *CoinmarketcapClient) CryptocurrencyOHLCVLatest(request *types.CryptocurrencyOHLCVLatestRequest) (map[string]*types.CryptocurrencyOHLCV, error) {

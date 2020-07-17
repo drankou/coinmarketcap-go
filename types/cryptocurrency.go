@@ -303,16 +303,46 @@ type CryptocurrencyOHLCVLatestResponse struct {
 	Status ResponseStatus                  `json:"status"`
 }
 
+type CryptocurrencyOHLCVHistoricalRequest struct {
+	Id          string `url:"id,omitempty"`
+	Slug        string `url:"slug,omitempty"`
+	Symbol      string `url:"symbol,omitempty"`
+	TimePeriod  string `url:"time_period,omitempty"`
+	TimeStart   string `url:"time_start,omitempty"`
+	TimeEnd     string `url:"time_end,omitempty"`
+	Count       int    `url:"count,omitempty"`
+	Interval    string `url:"interval,omitempty"`
+	Convert     string `url:"convert,omitempty"`
+	ConvertId   string `url:"convert_id,omitempty"`
+	SkipInvalid string `url:"skip_invalid,omitempty"`
+}
+
+type CryptocurrencyOHLCVHistoricalResponse struct {
+	Data   map[string]*OHLCVHistoricalResult `json:"data"`
+	Status ResponseStatus                   `json:"status"`
+}
+
+type OHLCVHistoricalResult struct {
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	Symbol string `json:"symbol"`
+	Quotes []OHLCVQuote
+}
+
 type CryptocurrencyOHLCV struct {
-	Id          int               `json:"id"`
-	Name        string            `json:"name"`
-	Symbol      string            `json:"symbol"`
-	LastUpdated *time.Time        `json:"last_updated"`
-	TimeOpen    *time.Time        `json:"time_open"`
-	TimeHigh    *time.Time        `json:"time_high"`
-	TimeLow     *time.Time        `json:"time_low"`
-	TimeClose   *time.Time        `json:"time_close"`
-	QuoteOHLCV  map[string]*OHLCV `json:"quote"`
+	Id          int        `json:"id"`
+	Name        string     `json:"name"`
+	Symbol      string     `json:"symbol"`
+	LastUpdated *time.Time `json:"last_updated"`
+	OHLCVQuote
+}
+
+type OHLCVQuote struct {
+	TimeOpen  *time.Time        `json:"time_open"`
+	TimeHigh  *time.Time        `json:"time_high"`
+	TimeLow   *time.Time        `json:"time_low"`
+	TimeClose *time.Time        `json:"time_close"`
+	Quote     map[string]*OHLCV `json:"quote"`
 }
 
 type OHLCV struct {

@@ -190,6 +190,34 @@ func TestCoinmarketcapClient_GlobalMetricsQuotesHistorical(t *testing.T) {
 	assert.NotNil(t, globalMetrics, "global metrics response is nil")
 }
 
+func TestCoinmarketcapClient_CryptocurrencyOHLCVHistorical(t *testing.T) {
+	cmc := &CoinmarketcapClient{}
+	err := cmc.Init()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := &types.CryptocurrencyOHLCVHistoricalRequest{
+		Symbol:    "BTC,ETH",
+		TimeStart: "2019-08-19",
+		TimeEnd:   "2019-08-20",
+	}
+
+	response, err := cmc.CryptocurrencyOHLCVHistorical(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.NotEmpty(t, response, "empty response")
+
+	assert.NotNil(t, response["BTC"], "cryptocurrency OHLCV data for BTC is empty")
+	assert.NotNil(t, response["ETH"], "cryptocurrency OHLCV data for BTC is empty")
+
+	for asset, ohlcv := range response {
+		t.Logf("OHLCV response for %s: %+v", asset, ohlcv)
+	}
+}
+
 func TestCoinmarketcapClient_CryptocurrencyOHLCVLatest(t *testing.T) {
 	cmc := &CoinmarketcapClient{}
 	err := cmc.Init()
@@ -211,8 +239,8 @@ func TestCoinmarketcapClient_CryptocurrencyOHLCVLatest(t *testing.T) {
 	for asset, ohlcv := range cryptocurrencyOHLCVMap {
 		t.Logf("OHLCV response for %s: %+v", asset, ohlcv)
 
-		assert.NotNil(t, ohlcv.QuoteOHLCV["USD"], "cryptocurrency OHLCV map is empty")
-		t.Logf("OHLCV prices for %s :%+v", asset, ohlcv.QuoteOHLCV["USD"])
+		assert.NotNil(t, ohlcv.OHLCVQuote.Quote["USD"], "cryptocurrency OHLCV map is empty")
+		t.Logf("OHLCV prices for %s :%+v", asset, ohlcv.OHLCVQuote.Quote["USD"])
 	}
 
 	assert.NotNil(t, cryptocurrencyOHLCVMap["BTC"], "missing data for BTC")
