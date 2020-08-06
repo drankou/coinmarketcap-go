@@ -1,12 +1,14 @@
 package coinmarketcap_go
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/drankou/coinmarketcap-go/types"
 	"github.com/google/go-querystring/query"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -18,12 +20,13 @@ const (
 )
 
 type CoinmarketcapClient struct {
-	client *http.Client
+	client  *http.Client
+	limiter *rate.Limiter
 }
 
-func (c *CoinmarketcapClient) Init() error {
+func (c *CoinmarketcapClient) Init(plan types.ApiPlan) error {
 	c.client = &http.Client{}
-
+	c.limiter = rate.NewLimiter(types.APIRateLimits[plan], 1)
 	return nil
 }
 
@@ -42,7 +45,7 @@ func (c *CoinmarketcapClient) CryptocurrencyIdMap(request *types.CryptocurrencyM
 		return nil, err
 	}
 
-	resp, err := c.client.Do(httpRequest)
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +81,10 @@ func (c *CoinmarketcapClient) CryptocurrencyInfo(request *types.CryptocurrencyIn
 		return nil, err
 	}
 
+	err = c.limiter.Wait(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	resp, err := c.client.Do(httpRequest)
 	if err != nil {
 		return nil, err
@@ -114,7 +121,7 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsHistorical(request *types.Cr
 		return nil, err
 	}
 
-	resp, err := c.client.Do(httpRequest)
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +157,7 @@ func (c *CoinmarketcapClient) CryptocurrencyListingsLatest(request *types.Crypto
 		return nil, err
 	}
 
-	resp, err := c.client.Do(httpRequest)
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +191,7 @@ func (c *CoinmarketcapClient) CryptocurrencyOHLCVHistorical(request *types.Crypt
 		return nil, err
 	}
 
-	resp, err := c.client.Do(httpRequest)
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +227,7 @@ func (c *CoinmarketcapClient) CryptocurrencyOHLCVLatest(request *types.Cryptocur
 		return nil, err
 	}
 
-	resp, err := c.client.Do(httpRequest)
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +261,7 @@ func (c *CoinmarketcapClient) CryptocurrencyQuotesLatest(request *types.Cryptocu
 		return nil, err
 	}
 
-	resp, err := c.client.Do(httpRequest)
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -288,7 +295,7 @@ func (c *CoinmarketcapClient) CryptocurrencyPricePerformanceStats(request *types
 		return nil, err
 	}
 
-	resp, err := c.client.Do(httpRequest)
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -325,11 +332,11 @@ func (c *CoinmarketcapClient) FiatMap(request *types.FiatMapRequest) ([]types.Fi
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.client.Do(httpRequest)
+
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
-
 	if resp.StatusCode == http.StatusOK {
 		respBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -359,12 +366,11 @@ func (c *CoinmarketcapClient) ExchangeInfo(request *types.ExchangeInfoRequest) (
 	}
 
 	err = prepareHttpRequest(httpRequest, request)
-
-	log.Print(httpRequest.URL.String())
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.client.Do(httpRequest)
+
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -397,12 +403,11 @@ func (c *CoinmarketcapClient) ExchangeIdMap(request *types.ExchangeIdMapRequest)
 	}
 
 	err = prepareHttpRequest(httpRequest, request)
-
-	log.Print(httpRequest.URL.String())
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.client.Do(httpRequest)
+
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -439,11 +444,11 @@ func (c *CoinmarketcapClient) GlobalMetricsQuotesLatest(request *types.GlobalMet
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.client.Do(httpRequest)
+
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
-
 	if resp.StatusCode == http.StatusOK {
 		respBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
@@ -474,7 +479,8 @@ func (c *CoinmarketcapClient) GlobalMetricsQuotesHistorical(request *types.Globa
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.client.Do(httpRequest)
+
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -508,7 +514,8 @@ func (c *CoinmarketcapClient) PartnersFCASListingsLatest(request *types.FCASList
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.client.Do(httpRequest)
+
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -541,7 +548,8 @@ func (c *CoinmarketcapClient) PartnersFCASQuotesLatest(request *types.FCASQuotes
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.client.Do(httpRequest)
+
+	resp, err := c.performHttpRequest(httpRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -575,4 +583,17 @@ func prepareHttpRequest(httpRequest *http.Request, request interface{}) error {
 	httpRequest.URL.RawQuery = values.Encode()
 
 	return nil
+}
+
+func (c *CoinmarketcapClient) performHttpRequest(req *http.Request) (*http.Response, error) {
+	err := c.limiter.Wait(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }

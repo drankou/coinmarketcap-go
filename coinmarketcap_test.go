@@ -15,17 +15,26 @@ func init() {
 	}
 }
 
+func initCmcClient() (*CoinmarketcapClient, error) {
+	c := &CoinmarketcapClient{}
+	err := c.Init(types.Basic)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}
+
 func TestCoinmarketcapClient_Init(t *testing.T) {
 	c := &CoinmarketcapClient{}
-	err := c.Init()
+	err := c.Init(types.Basic)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
 func TestCoinmarketcapClient_CryptocurrencyIdMap(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,8 +52,7 @@ func TestCoinmarketcapClient_CryptocurrencyIdMap(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyIdMap2(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,8 +71,7 @@ func TestCoinmarketcapClient_CryptocurrencyIdMap2(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyInfo(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,8 +91,7 @@ func TestCoinmarketcapClient_CryptocurrencyInfo(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyListingsLatest(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,8 +107,7 @@ func TestCoinmarketcapClient_CryptocurrencyListingsLatest(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyListingsHistorical(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,8 +126,7 @@ func TestCoinmarketcapClient_CryptocurrencyListingsHistorical(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyQuotesLatest(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,8 +147,7 @@ func TestCoinmarketcapClient_CryptocurrencyQuotesLatest(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_FiatMap(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,8 +162,7 @@ func TestCoinmarketcapClient_FiatMap(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_GlobalMetricsQuotesLatest(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -175,8 +177,7 @@ func TestCoinmarketcapClient_GlobalMetricsQuotesLatest(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_GlobalMetricsQuotesHistorical(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,8 +192,7 @@ func TestCoinmarketcapClient_GlobalMetricsQuotesHistorical(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyOHLCVHistorical(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -219,8 +219,7 @@ func TestCoinmarketcapClient_CryptocurrencyOHLCVHistorical(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyOHLCVLatest(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -248,8 +247,7 @@ func TestCoinmarketcapClient_CryptocurrencyOHLCVLatest(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_CryptocurrencyPricePerformanceStats(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -274,8 +272,7 @@ func TestCoinmarketcapClient_CryptocurrencyPricePerformanceStats(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_ExchangeInfo(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -299,8 +296,7 @@ func TestCoinmarketcapClient_ExchangeInfo(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_ExchangeIdMap(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -319,8 +315,7 @@ func TestCoinmarketcapClient_ExchangeIdMap(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_PartnersFCASListingsLatest(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -336,8 +331,7 @@ func TestCoinmarketcapClient_PartnersFCASListingsLatest(t *testing.T) {
 }
 
 func TestCoinmarketcapClient_PartnersFCASQuotesLatest(t *testing.T) {
-	cmc := &CoinmarketcapClient{}
-	err := cmc.Init()
+	cmc, err := initCmcClient()
 	if err != nil {
 		t.Fatal(err)
 	}
